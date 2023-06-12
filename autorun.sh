@@ -7,6 +7,8 @@ proc_name="auto_run_validator"
 args=()
 
 
+args=$@
+
 # Check if pm2 is installed
 if ! command -v pm2 &> /dev/null
 then
@@ -100,8 +102,10 @@ while true; do
         # echo "${args[@]}"
         # pm2 start "$script" --name $proc_name --interpreter python3 -- "${args[@]}"
         current_tag=$(git describe --tags --abbrev=0)
-        exec "$autoRunLoc $@"
         echo ""
+
+        echo "Restarting script..."
+        ./$(basename $0) $args && exit
     else
         # current tag is newer than the latest on git. This is likely a local copy, so do nothing. 
         echo "**Will not update**"
