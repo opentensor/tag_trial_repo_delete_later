@@ -2,8 +2,10 @@
 
 # Initialize variables
 script=""
+autoRunLoc=$(readlink -f "$0")
 proc_name="auto_run_validator" 
 args=()
+
 
 # Check if pm2 is installed
 if ! command -v pm2 &> /dev/null
@@ -98,6 +100,7 @@ while true; do
         # echo "${args[@]}"
         # pm2 start "$script" --name $proc_name --interpreter python3 -- "${args[@]}"
         current_tag=$(git describe --tags --abbrev=0)
+        exec "$ScriptLoc $@"
         echo ""
     else
         # current tag is newer than the latest on git. This is likely a local copy, so do nothing. 
