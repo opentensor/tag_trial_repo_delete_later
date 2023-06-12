@@ -113,6 +113,7 @@ while true; do
         # current tag is newer than the latest on git. This is likely a local copy, so do nothing. 
         echo "**Will not update**"
         echo "$current_tag is up to date with latest tag $latest_tag."
+        echo "THIS IS AN UPDATE"
     fi
 
     # Wait for a while before the next check
