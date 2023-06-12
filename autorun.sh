@@ -67,56 +67,60 @@ echo "${args[@]}"
 pm2 start "$script" --name $proc_name --interpreter python3 -- "${args[@]}"
 
 while true; do
-    # Fetch the latest tags (if any) from the repository
-    git fetch --all
 
-    # Pull latest changes
-    git pull origin $branch
+    # First ensure that this is a git installation
+    if [ -d "./.git" ]; then
+        # Fetch the latest tags (if any) from the repository
+        git fetch --all
 
-    latest_tag=$(git describe --tags `git rev-list --tags --max-count=1`)
-
-    echo "current validator tag:" "$current_tag" 
-    echo "latest validator tag:" "$latest_tag" 
-
-    # If the file has been updated
-    if versionLessThan $current_tag $latest_tag; then
-        # latest_tag is newer than current_tag, should download and reinstall.
-        echo "New tag published. Updating the local copy."
-        
         # Pull latest changes
-        git checkout -b $latest_tag $latest_tag
+        git pull origin $branch
 
-        # Install latest changes just in case.
-        #pip install -e ../
+        latest_tag=$(git describe --tags `git rev-list --tags --max-count=1`)
 
-        # Update the current tag 
-        current_tag=$(git describe --tags --abbrev=0)
-        # Check if script is already running with pm2
-        if pm2 status | grep -q $proc_name; then
-            echo "The script is already running with pm2. Stopping and restarting..."
-            pm2 delete $proc_name
+        echo "current validator tag:" "$current_tag" 
+        echo "latest validator tag:" "$latest_tag" 
+
+        # If the file has been updated
+        if versionLessThan $current_tag $latest_tag; then
+            # latest_tag is newer than current_tag, should download and reinstall.
+            echo "New tag published. Updating the local copy."
+            
+            # Pull latest changes
+            git checkout -b $latest_tag $latest_tag
+
+            # Install latest changes just in case.
+            pip install -e ../
+
+            # Update the current tag 
+            current_tag=$(git describe --tags --abbrev=0)
+            # Check if script is already running with pm2
+            if pm2 status | grep -q $proc_name; then
+                echo "The script is already running with pm2. Stopping and restarting..."
+                pm2 delete $proc_name
+            fi
+
+            # # Run the Python script with the arguments using pm2
+            echo "Running $script with the following arguments with pm2:"
+            echo "${args[@]}"
+            pm2 start "$script" --name $proc_name --interpreter python3 -- "${args[@]}"
+
+            # Update current tag:
+            current_tag=$(git describe --tags --abbrev=0)
+            echo ""
+
+            # Restart autorun script
+            echo "Restarting script..."
+            ./$(basename $0) $args && exit
+        else
+            # current tag is newer than the latest on git. This is likely a local copy, so do nothing. 
+            echo "**Will not update**"
+            echo "$current_tag is up to date with latest tag $latest_tag."
         fi
 
-        # # Run the Python script with the arguments using pm2
-        echo "Running $script with the following arguments with pm2:"
-        echo "${args[@]}"
-        pm2 start "$script" --name $proc_name --interpreter python3 -- "${args[@]}"
-
-        # Update current tag:
-        current_tag=$(git describe --tags --abbrev=0)
-        echo ""
-
-        # Restart autorun script
-        echo "Restarting script..."
-        ./$(basename $0) $args && exit
+        # Wait for a while before the next check
+        sleep 5
     else
-        # current tag is newer than the latest on git. This is likely a local copy, so do nothing. 
-        echo "**Will not update**"
-        echo "$current_tag is up to date with latest tag $latest_tag."
-        echo "THIS IS AN UPDATE"
-        echo "THIS IS ANOTHER UPDATE"
+        echo "The installation does not appear to be done through Git. Please install from source at https://github.com/opentensor/validators and rerun this script."
     fi
-
-    # Wait for a while before the next check
-    sleep 5
 done
