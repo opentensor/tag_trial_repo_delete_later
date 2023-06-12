@@ -85,7 +85,6 @@ check_variable_value_on_github() {
     local variable_name="$3"
 
     local url="https://api.github.com/repos/$repo/contents/$file_path"
-    echo $url
     local response=$(curl -s Iv1.0c670416b460e145:e7041d3d739feab1fed83b23a25b720a079d101a "$url")
 
     # Check if the response contains an error message
@@ -113,7 +112,7 @@ check_variable_value_on_github() {
         return 1
     fi
 
-    echo $diff
+    strip_quotes $variable_value
 }
 
 strip_quotes() {
@@ -173,9 +172,7 @@ while true; do
         if versionLessThan $current_version $latest_version; then
             echo "latest version $latest_version"
             echo "current version $current_version"
-            get_version_difference $latest_version $current_version
-            diff=$?
-            echo "difference is $diff"
+            diff=$(get_version_difference $latest_version $current_version)
             if [ "$diff" -eq 1 ]; then
                 echo "current validator version:" "$current_version" 
                 echo "latest validator version:" "$latest_version" 
@@ -200,7 +197,7 @@ while true; do
                 pm2 start "$script" --name $proc_name --interpreter python3 -- "${args[@]}"
 
                 # Update current version:
-                current_version=$(git describe --versions --abbrev=0)
+                current_version=$(read_version_value)
                 echo ""
 
                 # Restart autorun script
@@ -218,5 +215,5 @@ while true; do
         echo "The installation does not appear to be done through Git. Please install from source at https://github.com/opentensor/validators and rerun this script."
     fi
     # Wait for a while before the next check
-    sleep 60
+    sleep 5
 done
