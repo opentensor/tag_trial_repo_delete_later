@@ -101,7 +101,8 @@ while true; do
         echo ""
     else
         # current tag is newer than the latest on git. This is likely a local copy, so do nothing. 
-        echo "Current tag is newer than or same as the git copy. Will not update."
+        echo "**Will not update**"
+        echo "Latest tag has not been updated."
     fi
 
     # Wait for a while before the next check
