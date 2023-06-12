@@ -114,6 +114,7 @@ while true; do
         echo "**Will not update**"
         echo "$current_tag is up to date with latest tag $latest_tag."
         echo "THIS IS AN UPDATE"
+        echo "THIS IS ANOTHER UPDATE"
     fi
 
     # Wait for a while before the next check
