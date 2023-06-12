@@ -100,7 +100,7 @@ while true; do
         # echo "${args[@]}"
         # pm2 start "$script" --name $proc_name --interpreter python3 -- "${args[@]}"
         current_tag=$(git describe --tags --abbrev=0)
-        exec "$ScriptLoc $@"
+        exec "$autoRunLoc $@"
         echo ""
     else
         # current tag is newer than the latest on git. This is likely a local copy, so do nothing. 
