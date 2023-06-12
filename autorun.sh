@@ -90,7 +90,7 @@ while true; do
             git checkout -b $latest_tag $latest_tag
 
             # Install latest changes just in case.
-            pip install -e ../
+            #pip install -e ../
 
             # Update the current tag 
             current_tag=$(git describe --tags --abbrev=0)
