@@ -183,7 +183,7 @@ while true; do
                 echo "New version published. Updating the local copy."
 
                 # Install latest changes just in case.
-                #pip install -e ../
+                pip install -e ../
 
                 # Check if script is already running with pm2
                 if pm2 status | grep -q $proc_name; then
@@ -209,11 +209,15 @@ while true; do
                 echo "The local version is $diff versions behind. Please manually update to the latest version and re-run this script."
             fi
         else
-            echo "$current_version is the same as or more than $latest_version"
+            echo "**Skipping update **"
+            echo "$current_version is the same as or more than $latest_version."
         fi
     else
         echo "The installation does not appear to be done through Git. Please install from source at https://github.com/opentensor/validators and rerun this script."
     fi
-    # Wait for a while before the next check
-    sleep 5
+    
+    # Wait about 30 minutes
+    # This should be plenty of time for validators to catch up
+    # and should prevent any rate limitations by GitHub.
+    sleep 1800
 done
