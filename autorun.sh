@@ -90,20 +90,23 @@ while true; do
         #pip install -e ../
 
         # Update the current tag 
-        # current_tag=$(git describe --tags --abbrev=0)
-        # # Check if script is already running with pm2
-        # if pm2 status | grep -q $proc_name; then
-        #     echo "The script is already running with pm2. Stopping and restarting..."
-        #     pm2 delete $proc_name
-        # fi
+        current_tag=$(git describe --tags --abbrev=0)
+        # Check if script is already running with pm2
+        if pm2 status | grep -q $proc_name; then
+            echo "The script is already running with pm2. Stopping and restarting..."
+            pm2 delete $proc_name
+        fi
 
         # # Run the Python script with the arguments using pm2
-        # echo "Running $script with the following arguments with pm2:"
-        # echo "${args[@]}"
-        # pm2 start "$script" --name $proc_name --interpreter python3 -- "${args[@]}"
+        echo "Running $script with the following arguments with pm2:"
+        echo "${args[@]}"
+        pm2 start "$script" --name $proc_name --interpreter python3 -- "${args[@]}"
+
+        # Update current tag:
         current_tag=$(git describe --tags --abbrev=0)
         echo ""
 
+        # Restart autorun script
         echo "Restarting script..."
         ./$(basename $0) $args && exit
     else
